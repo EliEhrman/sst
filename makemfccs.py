@@ -1,3 +1,18 @@
+"""
+This program takes the output of the modified sphinx program and creates mfccs for each audio file
+
+The spinx program creates two kinds of files, one for individual words and one for the full audio file
+
+This program uses the latter.
+
+The input consists of the full file path of the audi file followed by information about the speech in that file
+
+Each file creates one row of mfcc signals with the start and end time for vad carried accross
+
+The mfcc signals are the mfcc, its delta and second delta. They are preceded by the shape of this 3-rank tensor
+
+"""
+
 from __future__ import print_function
 
 
@@ -27,7 +42,7 @@ signals_writer = csv.writer(signalsfile, delimiter=',')
 for irow, row in enumerate(reader):
 	stime = float(row[4])
 	dur = float(row[5]) - stime
-	stime -= (stime * 0.11)
+	# stime -= (stime * 0.11)
 	y, sr = librosa.load(row[0], sr=None, offset=stime, duration=dur)
 	if y.size == 0:
 		print ('row %d produced no data.', irow)
