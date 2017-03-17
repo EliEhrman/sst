@@ -1,3 +1,7 @@
+"""
+This module takes the file of signals created by makemfccs.py and rearranges it, grouping the rows by words.
+
+"""
 import csv
 from random import shuffle
 

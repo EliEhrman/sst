@@ -1,3 +1,6 @@
+"""
+A simple module for shuffling a large data file. As of writing it seems it is not used by the stt flow
+"""
 import csv
 from random import shuffle
 

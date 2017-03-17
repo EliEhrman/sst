@@ -3,11 +3,11 @@ This program takes the output of the modified sphinx program and creates mfccs f
 
 The spinx program creates two kinds of files, one for individual words and one for the full audio file
 
-This program uses the latter.
+This program uses the former.
 
 The input consists of the full file path of the audi file followed by information about the speech in that file
 
-Each file creates one row of mfcc signals with the start and end time for vad carried accross
+Each row of input with its corresponding file creates one output row of signals. The signal data is preceded by the
 
 The mfcc signals are the mfcc, its delta and second delta. They are preceded by the shape of this 3-rank tensor
 
