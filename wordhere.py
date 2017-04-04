@@ -15,9 +15,9 @@ whclipsknn_path = '/devlink2/data/stt/whclipsknn.txt'
 chkpoint_path = '/devlink2/data/stt/chk/chkwordhere.dat'
 b_skip_learning = True
 
-batch_size = 512 # 8 #
+batch_size = 8 # 512 #
 rsize = batch_size * batch_size
-num_steps = 100000 # 10000 #
+num_steps = 10000 # 100000 #
 # num_samps = 100 # number of times DURING the run we reinitialize the sample and its random
 max_word_time = 1.2 # seconds
 max_clip_time = 3.0 # seconds
@@ -26,8 +26,8 @@ sr = 16000 #sr is sampling rate i.e. samples per second
 c_num_spectra = 13
 c_num_channels = 3 # mfcc, delta and delta2
 max_word_examples = 3 # 5 # how many words to find for each example
-max_clips_to_read = 10000 # 100 #
-max_words_to_read = 100000 # 1000 #
+max_clips_to_read = 100 # 10000 #
+max_words_to_read = 1000 # 100000 #
 max_clip_ids = 2**14 # 2**18 # sadly, it seems tensorflow cannot handle dynamic length for Variables
 
 max_word_frames = max_word_time * sr / samples_per_frame
@@ -396,17 +396,17 @@ if num_words > max_clip_ids or num_clips > max_clip_ids:
 # 		print('clip id error!!! Element ', iid, '=', id, 'out of', num_clips)
 
 ph_clip_ids = tf.placeholder(dtype=tf.int32)
-var_clip_ids = tf.Variable([0]*max_clip_ids, dtype=tf.int32)
+var_clip_ids = tf.Variable([0]*max_clip_ids, dtype=tf.int32, trainable=False)
 op_clip_ids_assign = tf.assign(var_clip_ids, ph_clip_ids)
 ph_word_ids = tf.placeholder(dtype=tf.int32)
-var_word_ids = tf.Variable([0]*max_clip_ids, dtype=tf.int32)
+var_word_ids = tf.Variable([0]*max_clip_ids, dtype=tf.int32, trainable=False)
 op_word_ids_assign = tf.assign(var_word_ids, ph_word_ids)
-var_inword = tf.Variable(inword)
+var_inword = tf.Variable(inword, trainable=False)
 fd_data = {ph_clip_ids : clip_ids + [0] * (max_clip_ids - ids_len),
 		   ph_word_ids: word_ids + [0] * (max_clip_ids - ids_len)}
 # t_batch_begin = tf.Variable()
 ph_batch_begin = tf.placeholder(dtype=tf.int32, shape=())
-t_batch_begin = tf.Variable(0, dtype=tf.int32)
+t_batch_begin = tf.Variable(0, dtype=tf.int32, trainable=False)
 op_batch_begin_rand = tf.assign(t_batch_begin, tf.random_uniform([], minval=0, maxval=ids_len - batch_size, dtype=tf.int32))
 op_batch_begin_input = tf.assign(t_batch_begin, ph_batch_begin)
 t_clip_ids = tf.slice(input_=var_clip_ids, begin=[t_batch_begin], size=[batch_size])

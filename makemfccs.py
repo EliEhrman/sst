@@ -8,6 +8,7 @@ This program uses the former.
 The input consists of the full file path of the audi file followed by information about the speech in that file
 
 Each row of input with its corresponding file creates one output row of signals. The signal data is preceded by the
+words from the original sphinx
 
 The mfcc signals are the mfcc, its delta and second delta. They are preceded by the shape of this 3-rank tensor
 

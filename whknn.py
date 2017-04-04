@@ -75,7 +75,7 @@ numcliprecs = len(clipvals)
 t_wordvals = tf.placeholder(shape=[numwordrecs, reclen], dtype=tf.float32)
 t_clipvals = tf.placeholder(shape=[numcliprecs, reclen], dtype=tf.float32)
 
-num_ks = 1000
+num_ks = 100
 AllCDs = tf.matmul(t_clipvals, t_wordvals, transpose_b=True)
 t_bestCDs, t_bestCDIDxs = tf.nn.top_k(AllCDs, num_ks)
 
@@ -89,17 +89,20 @@ v_bestCDIDxs = sess.run(t_bestCDIDxs, feed_dict=fd)
 sess.close()
 
 score = 0.0
+num_unique_found = 0.0
 for iclip, clipIDs in enumerate(v_bestCDIDxs):
 	wordsfound = set([words[clipID] for clipID in clipIDs])
+	num_unique_found += float(len(wordsfound))
 	num_found = 0.0
 	for clipword in clip_words[iclip]:
 		if clipword in wordsfound:
 			num_found += 1.0
 	score += num_found / len(clip_words[iclip])
 score /= len(v_bestCDIDxs)
+num_unique_found /= len(v_bestCDIDxs)
 
 
 
 
 
-print score
+print 'score:', score, 'avg unique found:',  num_unique_found

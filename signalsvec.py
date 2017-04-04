@@ -12,11 +12,11 @@ phoneme_dict_path = '/devlink2/data/stt/cmudict-en-us.dict'
 groupspath = '/devlink2/data/stt/wordgroups.txt'
 knn_path = '/devlink2/data/stt/knn.txt'
 chkpoint_path = '/devlink2/data/stt/chk/chkpoint.dat'
-b_skip_learning = True
+b_skip_learning = False
 
 batch_size = 256
 rsize = batch_size * batch_size
-num_steps = 100000
+num_steps = 10000
 # num_samps = 100 # number of times DURING the run we reinitialize the sample and its random
 max_num_spectrums = 64
 spectrum_size = 13
@@ -159,7 +159,8 @@ def create_graph(t_sigs_input):
 	return lastones
 #
 
-def read_batch(reader, num_rows, num_words_read, images, labels, b_read_till_full):
+def read_batch(reader, num_rows, images, labels, b_read_till_full):
+	num_words_read = 0
 	for irow, row in enumerate(reader):
 		if irow >= num_rows:
 			break
@@ -193,6 +194,7 @@ def read_batch(reader, num_rows, num_words_read, images, labels, b_read_till_ful
 		# images.append([[[val] for val in row] for row in image])
 		images.append(image)
 		labels.append(row[1])
+	return num_words_read
 
 
 def create_feed_final(sigfile, t_sigs_input, b_first_batch):
@@ -201,8 +203,7 @@ def create_feed_final(sigfile, t_sigs_input, b_first_batch):
 	reader = csv.reader(sigfile, delimiter=',')
 	images = []
 	labels = []
-	num_words_read = 0
-	read_batch(reader, batch_size, num_words_read, images, labels, b_read_till_full=True)
+	num_words_read = read_batch(reader, batch_size, images, labels, b_read_till_full=True)
 	return {t_sigs_input: images}, labels
 
 def create_feed(sigfile, phoneme_dict, word_groups, t_sigs_input, t_r1, t_r2, t_dists):
@@ -221,10 +222,9 @@ def create_feed(sigfile, phoneme_dict, word_groups, t_sigs_input, t_r1, t_r2, t_
 		sigsize += num_words_left
 		sigend = sigsize
 		sigfile.seek(int(group_data[2]))
-		num_words_read = 0
 		reader = csv.reader(sigfile, delimiter=',')
 
-		read_batch(reader, num_words_left, num_words_read, images, labels, b_read_till_full=False)
+		num_words_read = read_batch(reader, num_words_left, images, labels, b_read_till_full=False)
 
 		for iouter in range(num_words_read):
 			for iinner in range(num_words_read):
@@ -240,6 +240,7 @@ def create_feed(sigfile, phoneme_dict, word_groups, t_sigs_input, t_r1, t_r2, t_
 		else:
 			distances.append(0.0)
 
+	print('num pairs:', num_equal_pairs * 2)
 	shuffler =  [random.randint(0, (num_equal_pairs * 2) - 1) for i in range(rsize)]
 	r1 = [r1[ish] for ish in shuffler]
 	r2 = [r2[ish] for ish in shuffler]
